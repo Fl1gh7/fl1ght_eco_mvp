@@ -1,0 +1,20 @@
+[Unit]
+Description=ServiceFl1ght Celery worker + beat
+After=network.target redis-server.service
+Wants=redis-server.service
+
+[Service]
+Type=simple
+User=flight
+Group=flight
+WorkingDirectory=/opt/servicefl1ght
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONPATH=/opt/servicefl1ght
+# Один процесс: worker и планировщик. Отдельный beat на 1 GB не тянем.
+ExecStart=/opt/servicefl1ght/venv/bin/celery -A core.celery_app worker --beat --concurrency=1 --loglevel=INFO
+Restart=on-failure
+RestartSec=8
+MemoryMax=280M
+
+[Install]
+WantedBy=multi-user.target

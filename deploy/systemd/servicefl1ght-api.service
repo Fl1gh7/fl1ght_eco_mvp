@@ -1,0 +1,19 @@
+[Unit]
+Description=ServiceFl1ght API (uvicorn)
+After=network.target redis-server.service
+Wants=redis-server.service
+
+[Service]
+Type=simple
+User=flight
+Group=flight
+WorkingDirectory=/opt/servicefl1ght
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONPATH=/opt/servicefl1ght
+ExecStart=/opt/servicefl1ght/venv/bin/uvicorn api.main:app --host 127.0.0.1 --port 8000 --workers 1
+Restart=on-failure
+RestartSec=5
+MemoryMax=250M
+
+[Install]
+WantedBy=multi-user.target

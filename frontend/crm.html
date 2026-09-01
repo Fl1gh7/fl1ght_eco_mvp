@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления ServiceFl1ght</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f5f5f7; margin: 0; padding: 20px; color: #1d1d1f; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto 20px; }
+        h1 { font-size: 1.8rem; margin: 0; }
+        .refresh-btn { background: #007aff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
+        .refresh-btn:hover { background: #005bb5; }
+
+        /* карточки заказов: auto-fill, минимум 320px */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 20px; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+
+        .card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 5px solid #ff9500; display: flex; flex-direction: column; }
+        .card.success { border-left-color: #34c759; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+
+        .status { padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; text-transform: uppercase; font-weight: bold; }
+        .status.active { background: #ffe6c7; color: #ff9500; }
+        .status.success { background: #d4f7dc; color: #34c759; }
+        
+        .field { margin: 8px 0; font-size: 0.95rem; line-height: 1.4; }
+        .label { color: #86868b; font-size: 0.85rem; display: block; margin-bottom: 2px;}
+        .val { font-weight: 500; }
+        
+        .highlight { background: #fff9e6; padding: 6px 8px; border-radius: 6px; margin-top: 10px; border: 1px dashed #ffcc00; }
+        .date { font-size: 0.8rem; color: #86868b; margin-top: auto; padding-top: 15px; text-align: right; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🚀 Заказы ServiceFl1ght</h1>
+    <button class="refresh-btn" onclick="loadOrders()">Обновить</button>
+</div>
+
+<div class="grid" id="ordersGrid">
+    </div>
+
+<script>
+    async function loadOrders() {
+        const grid = document.getElementById('ordersGrid');
+        grid.innerHTML = '<p>Загрузка данных...</p>';
+        
+        try {
+            const response = await fetch('/api/crm/orders');
+            
+            if (response.status === 401) {
+                grid.innerHTML = '<p style="color:red; font-weight:bold;">Ошибка авторизации. Перезагрузите страницу и введите логин/пароль.</p>';
+                return;
+            }
+            
+            const data = await response.json();
+            grid.innerHTML = '';
+            
+            if (!data.orders || data.orders.length === 0) {
+                grid.innerHTML = '<p>Новых заказов пока нет. Ждем клиентов!</p>';
+                return;
+            }
+            
+            data.orders.forEach(order => {
+                const card = document.createElement('div');
+                card.className = `card ${order.status}`;
+                
+                const statusText = order.status === 'success' ? 'Оформлен' : 'В диалоге';
+                const dateObj = new Date(order.created_at + 'Z'); // SQLite пишет UTC без зоны
+                const dateStr = dateObj.toLocaleString('ru-RU');
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span>Заказ #${order.id}</span>
+                        <span class="status ${order.status}">${statusText}</span>
+                    </div>
+                    <div class="field"><span class="label">Устройство:</span> <span class="val">${order.device_info || 'Выясняется'}</span></div>
+                    <div class="field"><span class="label">Проблема:</span> <span class="val">${order.issue || 'Выясняется'}</span></div>
+                    <div class="field"><span class="label">Цена:</span> <span class="val" style="color: #007aff; font-size: 1.1rem;">${order.agreed_price ? order.agreed_price + ' ₽' : 'Считаем...'}</span></div>
+                    <div class="field"><span class="label">Телефон:</span> <span class="val"><a href="tel:${order.phone}">${order.phone || 'Не указан'}</a></span></div>
+                    
+                    <div class="highlight">
+                        <div class="field"><span class="label">📍 Адрес выезда:</span> <span class="val">${order.address || 'Ожидает заполнения...'}</span></div>
+                        <div class="field"><span class="label">🕒 Время:</span> <span class="val">${order.time_slot || 'Ожидает заполнения...'}</span></div>
+                    </div>
+                    
+                    <div class="date">${dateStr}</div>
+                `;
+                grid.appendChild(card);
+            });
+        } catch (error) {
+            grid.innerHTML = '<p style="color:red;">Ошибка соединения с сервером CRM.</p>';
+            console.error(error);
+        }
+    }
+    
+    window.onload = loadOrders;
+</script>
+</body>
+</html>

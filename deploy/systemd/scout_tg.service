@@ -1,0 +1,18 @@
+[Unit]
+Description=ServiceFl1ght Telegram userbot scout
+After=network.target
+
+[Service]
+Type=simple
+User=flight
+Group=flight
+WorkingDirectory=/opt/servicefl1ght
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONPATH=/opt/servicefl1ght
+ExecStart=/opt/servicefl1ght/venv/bin/python services/scouts/scout_tg.py
+Restart=on-failure
+RestartSec=10
+MemoryMax=220M
+
+[Install]
+WantedBy=multi-user.target
