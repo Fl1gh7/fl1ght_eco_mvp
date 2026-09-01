@@ -32,12 +32,12 @@ celery_app.conf.update(
 celery_app.autodiscover_tasks(["services.scouts"])
 
 celery_app.conf.beat_schedule = {
-    # Стены и комментарии VK.
+    # Обход стен и комментариев VK.
     "run-vk-scout-every-2-hours": {
         "task": "services.scouts.scout_vk.run_vk_scout",
         "schedule": 120 * 60.0,
     },
-    # Пересбор monitored_groups.json (воскресенье 03:00 Europe/Moscow).
+    # Раз в неделю пересобираю список пабликов (вс 03:00 Europe/Moscow).
     "run-group-finder-weekly": {
         "task": "services.scouts.group_finder.run_finder",
         "schedule": crontab(hour=3, minute=0, day_of_week="sun"),

@@ -15,7 +15,7 @@ GROUPS_FILE = os.path.join(PROJECT_ROOT, "services/scouts/monitored_groups.json"
 
 def search_and_save_groups():
     if not VK_USER_TOKEN:
-        print("❌ [FINDER] Ошибка: Не задан VK_USER_TOKEN в файле .env")
+        print("❌ [FINDER] VK_USER_TOKEN в .env пуст")
         return
 
     districts = [
@@ -40,7 +40,7 @@ def search_and_save_groups():
         search_queries.append(f"жк {j}")
         search_queries.append(f"{j} соседи")
 
-    # Файл пишем с нуля: старые барахолки из прошлого прогона не оставляем.
+    # Список пабликов пишу с нуля: барахолки прошлого прогона не оставляю.
     existing_groups = {}
 
     print(f"🕵️‍♂️ [FINDER] Запуск целевого сканирования ЖК и Подслушано...")

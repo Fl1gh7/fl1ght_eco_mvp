@@ -1,3 +1,4 @@
+"""Консольный прогон воронки: Сито → прайс → Продавец → SQLite."""
 import asyncio
 from services.ai.sieve import ai_sieve
 from services.ai.closer import ai_closer
@@ -6,7 +7,7 @@ from core import db_manager
 
 async def main():
     print("=" * 65)
-    print("🚀 ЗАПУСК ПОЛНОГО КОНВЕЙЕРА + БАЗА ДАННЫХ")
+    print("Конвейер: Сито → прайс → Продавец → SQLite")
     print("=" * 65 + "\n")
     
     chat_history = []

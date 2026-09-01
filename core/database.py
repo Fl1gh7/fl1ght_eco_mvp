@@ -6,7 +6,7 @@ import os
 DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "database.db"))
 
 def get_connection():
-    """Подключение с WAL и timeout=10 (API + Celery пишут в один файл)."""
+    """WAL и timeout=10: в один SQLite пишут и API, и Celery."""
     conn = sqlite3.connect(DB_PATH, timeout=10)
     conn.execute("PRAGMA foreign_keys = ON;")
     conn.execute("PRAGMA journal_mode = WAL;")
@@ -14,7 +14,7 @@ def get_connection():
     return conn
 
 def init_db():
-    """Создаёт таблицы, если их ещё нет."""
+    """Таблицы, если их ещё нет."""
     conn = get_connection()
     cursor = conn.cursor()
 

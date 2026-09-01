@@ -82,7 +82,7 @@
 </div>
 
 <script>
-    // session_id для /api/chat, чтобы сервер склеивал реплики одного клиента
+    // Один session_id на вкладку: API склеивает реплики клиента в одну воронку.
     let sessionId = localStorage.getItem('chat_session');
     if (!sessionId) {
         sessionId = 'web_' + Math.random().toString(36).substr(2, 9);

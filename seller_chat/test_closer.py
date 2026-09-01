@@ -1,3 +1,4 @@
+"""Диалог только с Продавцом и прайсом, без Сита."""
 import asyncio
 import os
 import sys
@@ -11,8 +12,7 @@ from services.ai.matcher import search_prices_in_db
 
 async def main():
     print("=" * 50)
-    print("ТЕСТ ИИ-ПРОДАВЦА + РЕАЛЬНАЯ БАЗА ДАННЫХ")
-    print("Введите 'выход' для завершения диалога.")
+    print("Продавец + прайс из SQLite (без Сита). «выход» — закончить диалог.")
     print("=" * 50 + "\n")
 
     chat_history = []

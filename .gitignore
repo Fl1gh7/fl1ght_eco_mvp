@@ -8,13 +8,13 @@ __pycache__/
 .idea/
 .vscode/
 
-# SQLite and local data
+# SQLite и локальные данные — в git не кладу
 *.db
 database.db
 
-# Pyrogram / Telethon sessions
+# Сессии Pyrogram / Telethon
 *.session
 *.session-journal
 
-# Excel source price list (optional; keep if you want it in the repo)
+# Прайс iphone.xlsx в репозитории оставляю: без него не поднять таблицу prices
 # iphone.xlsx

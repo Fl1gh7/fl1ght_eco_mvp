@@ -15,7 +15,7 @@ def verify_shared_secret(
     missing_detail: str,
     invalid_detail: str = "Invalid webhook secret",
 ) -> None:
-    """Сравнивает секрет за постоянное время. Пустой expected — сервис не настроен."""
+    """Сравнение за постоянное время. Пустой expected — вебхук ещё не настроен."""
     if not expected:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

@@ -12,7 +12,7 @@ import json
 import random
 from dotenv import load_dotenv
 
-# Импорты `core` / `services` рассчитаны на корень репозитория в sys.path.
+# Пакеты `core` и `services` импортирую от корня репозитория.
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, PROJECT_ROOT)
 load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
@@ -28,13 +28,13 @@ app = FastAPI(title="ServiceFl1ght API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # виджет чата может жить на другом домене; в проде лучше сузить
+    allow_origins=["*"],  # виджет может жить на другом хосте; узкий CORS — в бэклоге
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# История диалога в RAM: сбрасывается при рестарте и не шарится между воркерами.
+# Контекст диалога держу в RAM процесса: рестарт и второй uvicorn его не разделят.
 sessions_history = {}
 
 # ==========================================
@@ -51,7 +51,7 @@ def authenticate_admin(credentials: HTTPBasicCredentials = Depends(security)):
     if not CRM_ADMIN_USER or not CRM_ADMIN_PASS:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="CRM не настроен: задайте CRM_ADMIN_USER и CRM_ADMIN_PASS в .env",
+            detail="CRM_ADMIN_USER / CRM_ADMIN_PASS не заданы в .env",
         )
     correct_username = secrets.compare_digest(credentials.username, CRM_ADMIN_USER)
     correct_password = secrets.compare_digest(credentials.password, CRM_ADMIN_PASS)
@@ -124,7 +124,7 @@ def get_crm_orders(username: str = Depends(authenticate_admin)):
 
 @app.get("/api/crm/scouts")
 def get_crm_scouts(username: str = Depends(authenticate_admin)):
-    """Последние 250 срабатываний скаутов для таблицы в /crm."""
+    """Последние 250 срабатываний скаутов — таблица в админке."""
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''
@@ -163,7 +163,7 @@ def get_crm_groups(username: str = Depends(authenticate_admin)):
 # ==========================================
 @app.post("/api/crm/run-tg-finder")
 async def run_tg_finder_endpoint(background_tasks: BackgroundTasks, username: str = Depends(authenticate_admin)):
-    """Фоновый прогон tg_group_finder. На время работы глушит scout_tg.service (одна Pyrogram-сессия)."""
+    """Поиск чатов ЖК. На время прогона глушу scout_tg: одна сессия Pyrogram на диск."""
     python_exe = os.path.join(PROJECT_ROOT, "venv", "bin", "python")
     script_path = os.path.join(PROJECT_ROOT, "services", "scouts", "tg_group_finder.py")
 
@@ -187,7 +187,7 @@ async def run_tg_finder_endpoint(background_tasks: BackgroundTasks, username: st
 
 @app.post("/api/crm/run-vk-finder")
 async def run_vk_finder_endpoint(background_tasks: BackgroundTasks, username: str = Depends(authenticate_admin)):
-    """Фоновый прогон group_finder. Перезаписывает monitored_groups.json."""
+    """Поиск пабликов VK. Перезаписывает monitored_groups.json целиком."""
     python_exe = os.path.join(PROJECT_ROOT, "venv", "bin", "python")
     script_path = os.path.join(PROJECT_ROOT, "services", "scouts", "group_finder.py")
 
@@ -288,8 +288,8 @@ async def vk_webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
     event_type = data.get("type")
 
-    # confirmation можно отдать без секрета (первичная настройка Callback).
-    # message_new без VK_CALLBACK_SECRET отклоняем.
+    # confirmation без секрета — чтобы один раз подтвердить Callback в кабинете VK.
+    # message_new без VK_CALLBACK_SECRET не принимаю.
     if event_type != "confirmation":
         verify_shared_secret(
             data.get("secret"),
@@ -324,7 +324,7 @@ async def vk_webhook(request: Request, background_tasks: BackgroundTasks):
 # ==========================================
 @app.post("/api/avito-webhook")
 async def avito_webhook():
-    """Канал Avito не реализован. Хост api.api.avito.ru в клиенте — намеренная заглушка."""
+    """Avito в воронку не подключал. Хост api.api.avito.ru в клиенте — намеренная заглушка."""
     return JSONResponse(
         status_code=501,
         content={

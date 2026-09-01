@@ -12,4 +12,4 @@ class Settings:
 settings = Settings()
 
 if not settings.YANDEX_API_KEY or not settings.YANDEX_FOLDER_ID:
-    print("YANDEX_API_KEY / YANDEX_FOLDER_ID не заданы — проверьте .env в корне репозитория")
+    print("YANDEX_API_KEY / YANDEX_FOLDER_ID не заданы — нужен .env в корне репозитория")

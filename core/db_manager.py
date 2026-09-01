@@ -1,4 +1,4 @@
-"""Доступ к клиентам, лидам и заказам. Схема живёт в core.database."""
+"""Доступ к клиентам, лидам и заказам. Схема — в core.database."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from core.database import get_connection
 
 TERMINAL_ORDER_STATUSES = ("success", "delayed", "trash")
 
-# Сито отдаёт target/trash, в CRM и фильтрах используем lead/trash.
+# Сито пишет target/trash; в CRM храню lead/trash.
 _LEAD_STATUS_MAP = {
     "target": "lead",
     "lead": "lead",
@@ -159,7 +159,7 @@ def save_lead(customer_id: int, raw_text: str, ai_score: Any, status: str) -> in
 
 
 def update_order_from_ai(order_id: int, customer_id: int, payload: dict) -> None:
-    """Обновляет заказ полями из JSON модели. Пустые и null не затирают уже сохранённое."""
+    """Пишет в заказ поля из JSON модели. Пустые и null уже сохранённое не затирают."""
     if not payload:
         return
 
@@ -207,7 +207,7 @@ def update_order_from_ai(order_id: int, customer_id: int, payload: dict) -> None
 
 
 def update_order_status(customer_id: int, status: str) -> int:
-    """Для консольного прогона: статус активного заказа или новый заказ."""
+    """Статус активного заказа или новый заказ — для консольного прогона воронки."""
     order_id = get_active_order_id(customer_id)
     if not order_id:
         order_id = create_new_order(customer_id)

@@ -21,7 +21,7 @@ app = Client(
     workdir=PROJECT_ROOT
 )
 
-# ЖК Москвы — узкие запросы, у contacts.Search лимит 10 результатов.
+# Узкие запросы по ЖК Москвы: у contacts.Search не больше 10 чатов на q.
 TARGET_JKS = [
     "Саларьево Парк", "Люблинский Парк", "Бунинские луга",
     "Символ", "Зиларт", "Сердце Столицы", "Метрополия",
@@ -34,7 +34,7 @@ PREFIXES = ["ЖК", "Соседи", "Чат"]
 SUFFIXES = ["соседи", "чат", "собственники", "жильцы"]
 
 def generate_search_queries():
-    """Узкие запросы: у contacts.Search не больше 10 чатов на q."""
+    """Узкие запросы: contacts.Search отдаёт не больше 10 чатов на q."""
     queries = []
     for jk in TARGET_JKS:
         queries.append(f"ЖК {jk} соседи")
@@ -46,7 +46,7 @@ async def search_and_join():
     search_queries = generate_search_queries()
     print(f"🚀 [TG FINDER] Сгенерировано {len(search_queries)} точечных запросов по ЖК Москвы.")
 
-    # отсекаем каналы застройщиков без «соседи/чат/жильцы» в названии
+    # Каналы застройщиков без «соседи/чат/жильцы» в названии отбрасываю.
     valid_title_markers = ["соседи", "чат", "жильцы", "собственники", "корпус", "дом"]
 
     async with app:
@@ -77,14 +77,14 @@ async def search_and_join():
                         try:
                             print(f"⏳ Пытаюсь вступить в: {chat.title} (@{chat.username})")
                             await app.join_chat(chat_identifier)
-                            print(f"  ✅ Успешно вступили!")
+                            print(f"  ✅ Вступил в чат.")
 
-                            pause = random.uniform(60.0, 600.0)  # пауза 1–10 мин, иначе flood
+                            pause = random.uniform(60.0, 600.0)  # 1–10 мин, иначе FloodWait
                             print(f"  💤 Имитируем чтение чата... Ждем {pause / 60:.1f} минут.")
                             await asyncio.sleep(pause)
 
                         except UserAlreadyParticipant:
-                            print(f"  ℹ️ Уже состоим в этом чате.")
+                            print(f"  ℹ️ Уже в этом чате.")
                         except InviteRequestSent:
                             print(f"  📨 Отправлена заявка на вступление (закрытый чат).")
                             pause_closed = random.uniform(60.0, 180.0)

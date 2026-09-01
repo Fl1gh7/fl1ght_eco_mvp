@@ -19,7 +19,7 @@ def import_excel_to_sqlite():
         print(f"❌ Ошибка чтения Excel: {e}")
         return
 
-    # строка 0 — услуга (merged-ячейки), строка 1 — копия/оригинал
+    # строка 0 — название услуги (merged), строка 1 — копия или оригинал
     service_headers = df.iloc[0]
     quality_headers = df.iloc[1]
 

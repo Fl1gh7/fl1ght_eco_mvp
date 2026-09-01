@@ -21,7 +21,7 @@ API_HASH = os.getenv("TELETHON_API_HASH")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 if not API_ID or not API_HASH:
-    print("[ОШИБКА] Укажите TELETHON_API_ID и TELETHON_API_HASH в файле .env!")
+    print("[ОШИБКА] TELETHON_API_ID и TELETHON_API_HASH должны быть в .env")
     sys.exit(1)
 
 app = Client(
@@ -31,12 +31,12 @@ app = Client(
     workdir=PROJECT_ROOT
 )
 
-# Дешёвый префильтр до вызова Сита (экономия токенов).
+# Ключевые слова — дешёвый префильтр, Сито не дергаю на каждый пост.
 KEYWORDS = ["ремонт", "мастер", "починить", "экран", "дисплей", "айфон", "iphone", "стекло", "аккумулятор", "батарея", "сервис"]
 STOP_WORDS = ["продам", "продаю", "продажа", "обмен", "меняю", "отдам"]
 
 def log_to_crm(chat_name: str, post_url: str, text: str, score: int, status: str, action_taken: str):
-    """Пишет срабатывание скаута в scout_logs (таблица /crm)."""
+    """Строка в scout_logs — её видит админка скаутов."""
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -63,7 +63,7 @@ def log_to_crm(chat_name: str, post_url: str, text: str, score: int, status: str
         print(f"❌ [БД CRM] Ошибка логирования Telegram: {e}")
 
 async def get_bot_link() -> str:
-    """Username официального бота через getMe — ссылка в публичных ответах."""
+    """Username боевого бота через getMe — его и даю в публичных ответах."""
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getMe", timeout=5) as resp:
@@ -126,7 +126,7 @@ async def handle_group_message(client, message):
     log_to_crm(f"Группа: {chat_name}", post_url, text, score, crm_status, action_taken)
 
 # ==========================================
-# Личка скаута — только ссылка на официального бота
+# Личка аккаунта-скаута: только ссылка на боевого бота, без воронки здесь
 # ==========================================
 @app.on_message(filters.text & filters.private)
 async def handle_private_message(client, message):

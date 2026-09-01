@@ -1,3 +1,4 @@
+"""Матчер прайса: «айфон 13» не должен выиграть у Pro Max."""
 import os
 import tempfile
 import unittest

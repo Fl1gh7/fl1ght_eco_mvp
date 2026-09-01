@@ -1,4 +1,4 @@
-"""Классификатор лида: YandexGPT, JSON score + target/trash."""
+"""Классификатор лида: YandexGPT, JSON со score и target/trash."""
 
 import aiohttp
 import logging

@@ -1,3 +1,4 @@
+"""Ручной пинок обхода VK: кладу run_vk_scout в очередь Celery."""
 import sys
 import os
 

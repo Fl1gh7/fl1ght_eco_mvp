@@ -23,7 +23,7 @@ GROUPS_FILE = os.path.join(PROJECT_ROOT, "services/scouts/monitored_groups.json"
 # ==========================================
 # Окно актуальности
 # ==========================================
-MAX_POST_AGE_DAYS = 5  # посты и комментарии старше этого окна не трогаем
+MAX_POST_AGE_DAYS = 5  # старше окна не комментирую — мёртвые треды
 MAX_POST_AGE_SECONDS = MAX_POST_AGE_DAYS * 24 * 60 * 60
 
 async def scan_group_comments(session: aiohttp.ClientSession, group_domain: str, keywords: list):
@@ -45,7 +45,7 @@ async def scan_group_comments(session: aiohttp.ClientSession, group_domain: str,
 
             posts = wall_data.get("response", {}).get("items", [])
 
-            # барахолка / реклама — не гоняем в Сито
+            # барахолка и реклама — в Сито не отправляю
             stop_words = [
                 "продам", "продаю", "продажа", "обмен", "меняю",
                 "магазин", "гарантия", "рассрочка", "в наличии",
@@ -94,7 +94,7 @@ async def scan_group_comments(session: aiohttp.ClientSession, group_domain: str,
                     "access_token": VK_USER_TOKEN
                 }
 
-                await asyncio.sleep(0.35)  # wall.get + getComments: около лимита VK (~3 req/s)
+                await asyncio.sleep(0.35)  # пауза под лимит VK (~3 req/s на wall.get + getComments)
 
                 async with session.get(comments_url, params=comments_params, timeout=10) as c_resp:
                     c_data = await c_resp.json()

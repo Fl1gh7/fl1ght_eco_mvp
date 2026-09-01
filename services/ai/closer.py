@@ -1,4 +1,4 @@
-"""Диалог продаж: YandexGPT возвращает JSON с action и полями заказа."""
+"""Продавец: YandexGPT обязан вернуть JSON с action и полями заказа."""
 
 import aiohttp
 import logging

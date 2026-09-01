@@ -1,3 +1,4 @@
+"""Shared secret вебхуков: пустой конфиг — 503, чужой секрет — 403."""
 import unittest
 
 try:

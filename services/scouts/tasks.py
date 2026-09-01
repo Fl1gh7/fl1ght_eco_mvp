@@ -13,7 +13,7 @@ VK_GROUP_ID = os.getenv("VK_GROUP_ID")
 async def send_vk_comment(owner_id: int, post_id: int, message: str):
     """Комментарий от имени сообщества (from_group)."""
     if not VK_USER_TOKEN or not VK_GROUP_ID:
-        print("[VK COMMENT] Пропуск: в .env не настроен токен или ID паблика.")
+        print("[VK COMMENT] Пропуск: в .env нет токена или ID паблика.")
         return
 
     url = "https://api.vk.com/method/wall.createComment"
@@ -41,7 +41,7 @@ async def _async_analyze(text: str):
 
 @celery_app.task(name="services.scouts.analyze_scout_message")
 def analyze_scout_message(platform: str, chat_name: str, owner_id: int, post_id: int, text: str):
-    """Сито → при лиде комментарий от группы → строка в scout_logs."""
+    """Сито → если лид, комментарий от группы → строка в scout_logs."""
     try:
         loop = asyncio.get_running_loop()
     except RuntimeError:

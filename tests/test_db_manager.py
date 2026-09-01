@@ -1,3 +1,4 @@
+"""Слой данных: клиент, воронка заказа, лиды. Пишу во временный SQLite, прод не трогаю."""
 import os
 import tempfile
 import unittest

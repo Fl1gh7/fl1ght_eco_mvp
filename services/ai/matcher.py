@@ -1,4 +1,4 @@
-"""Подбор позиций прайса по тексту клиента: нормализация + штрафы за лишние Max/Mini."""
+"""Подбор строк прайса: нормализую кириллицу и штрафую Max/Mini, если клиент их не назвал."""
 
 from __future__ import annotations
 
@@ -45,7 +45,7 @@ IMPORTANT_MODIFIERS = ("max", "mini", "plus", "ultra")
 
 
 def search_prices_in_db(user_text: str) -> list:
-    """Возвращает до 6 позиций прайса, ближайших к формулировке клиента."""
+    """До 6 позиций прайса, ближайших к формулировке клиента."""
     text = re.sub(r"[^\w\s]", " ", user_text.lower())
     keywords = [
         NORMALIZATION.get(word, word)
