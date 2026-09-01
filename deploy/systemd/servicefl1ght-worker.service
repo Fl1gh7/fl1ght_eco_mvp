@@ -10,7 +10,7 @@ Group=flight
 WorkingDirectory=/opt/servicefl1ght
 Environment=PYTHONUNBUFFERED=1
 Environment=PYTHONPATH=/opt/servicefl1ght
-# Worker и Beat в одном процессе: отдельный beat на маленьком VPS не держу.
+# Worker и Beat в одном процессе: отдельный beat на маленьком VPS не нужен.
 ExecStart=/opt/servicefl1ght/venv/bin/celery -A core.celery_app worker --beat --concurrency=1 --loglevel=INFO
 Restart=on-failure
 RestartSec=8

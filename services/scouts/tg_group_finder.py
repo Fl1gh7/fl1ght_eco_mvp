@@ -46,7 +46,7 @@ async def search_and_join():
     search_queries = generate_search_queries()
     print(f"🚀 [TG FINDER] Сгенерировано {len(search_queries)} точечных запросов по ЖК Москвы.")
 
-    # Каналы застройщиков без «соседи/чат/жильцы» в названии отбрасываю.
+    # Каналы застройщиков без «соседи/чат/жильцы» в названии отбрасываются.
     valid_title_markers = ["соседи", "чат", "жильцы", "собственники", "корпус", "дом"]
 
     async with app:

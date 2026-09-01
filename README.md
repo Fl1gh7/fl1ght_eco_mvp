@@ -1,14 +1,14 @@
 # ServiceFl1ght
 
-**AI sales agent for on-site Apple repair** — a working MVP: inbound demand, a real price list, a six-field job ticket, a ping to the technician.
+**AI sales agent for on-site Apple repair** — MVP: inbound demand, a real price list, a six-field job ticket, a ping to the technician.
 
-Я собрал автономного менеджера для выездного сервиса в Москве: он отсеивает спам, ведёт диалог как консультант, собирает заказ и пишет мастеру в Telegram.
+Автономный менеджер выездного сервиса в Москве: отсеивает спам, ведёт диалог как консультант, собирает заказ и пишет мастеру в Telegram.
 
-Живой контур: [fl1ght.ru](https://fl1ght.ru) (чат), [admin.fl1ght.ru](https://admin.fl1ght.ru) (скауты), [crm.fl1ght.ru](https://crm.fl1ght.ru) (заказы). Как устроен прод — в [deploy/DEPLOY.md](deploy/DEPLOY.md). Как прогнать воронку локально — в [TESTING.md](TESTING.md).
+Живой контур: [fl1ght.ru](https://fl1ght.ru) (чат), [admin.fl1ght.ru](https://admin.fl1ght.ru) (скауты), [crm.fl1ght.ru](https://crm.fl1ght.ru) (заказы). Прод: [deploy/DEPLOY.md](deploy/DEPLOY.md). Локальный прогон воронки: [TESTING.md](TESTING.md).
 
 ---
 
-## Зачем это репозиторий
+## Зачем этот репозиторий
 
 Соло-MVP: продукт, бэкенд, интеграции и промпты в одном месте. Не CRUD-скелет.
 
@@ -16,16 +16,16 @@
 |---|---|
 | **Роль** | Операционный AI-агент в продажах услуг |
 | **Стек** | Python 3.11, FastAPI, Celery, Redis, SQLite, YandexGPT, aiohttp |
-| **Каналы** | сайт, VK Callback, Telegram Bot API, Pyrogram; Avito оставлен заглушкой |
+| **Каналы** | сайт, VK Callback, Telegram Bot API, Pyrogram; Avito — заглушка |
 | **Паттерны** | вебхуки, очередь, structured LLM output, скоринг лида, простой CRM |
 
-По коду видно, как я резал воронку под правила бизнеса, а не «чат с GPT»; как свёл несколько каналов в одно ядро; почему обход пабликов живёт в Celery, а не в HTTP-воркере.
+Воронка завязана на правила бизнеса, а не на «чат с GPT». Несколько каналов сходятся в одно ядро. Обход пабликов идёт в Celery, не в HTTP-воркере.
 
 ---
 
 ## Задача
 
-Сервис чинит iPhone и iPad с выездом. Менеджер не успевает одновременно отвечать в VK, Telegram и на сайте. Холодный спрос сидит в пабликах и чатах ЖК. Avito в схеме есть как следующий канал — **в воронку его не подключал**.
+Сервис чинит iPhone и iPad с выездом. Менеджер не успевает одновременно отвечать в VK, Telegram и на сайте. Холодный спрос сидит в пабликах и чатах ЖК. Avito в схеме есть как следующий канал и **в воронку не входит**.
 
 ServiceFl1ght:
 
@@ -34,7 +34,7 @@ ServiceFl1ght:
 3. Цитирует Excel-прайс, а не цену из головы модели.
 4. Дожимает диалог до шести полей и шлёт алерт в Telegram.
 
-Воронка с явным state machine: модель **не имеет права** закрыть сделку, пока не собраны все поля.
+Воронка — явный state machine: модель **не имеет права** закрыть сделку, пока не собраны все поля.
 
 ---
 
@@ -70,7 +70,7 @@ ServiceFl1ght:
   Avito: заглушка (501 + api.api.avito.ru). В воронку не входит.
 ```
 
-Сито и Продавца я развёл специально: классификатор на низкой температуре и коротком контексте, продавец видит только целевые лиды и строки прайса. Так дешевле по токенам и жёстче по правилам.
+Сито и Продавец — два вызова: классификатор на низкой температуре и коротком контексте, продавец видит только целевые лиды и строки прайса. Так дешевле по токенам и жёстче по правилам.
 
 ### Статусы воронки (`action`)
 
@@ -85,17 +85,17 @@ ServiceFl1ght:
 
 ## Стек
 
-| Слой | Чем сделал | Зачем |
+| Слой | Технологии | Зачем |
 |---|---|---|
 | HTTP | FastAPI, Pydantic, CORS, HTTP Basic | Вебхуки и админка |
 | ИИ | YandexGPT, JSON-контракт, system prompt | Structured output, а не свободный текст |
-| Прайс | SQLite + эвристический скоринг | «Бедный RAG» без эмбеддингов — осознанно, прайс ~300 позиций |
+| Прайс | SQLite + эвристический скоринг | «Бедный RAG» без эмбеддингов — прайс ~300 позиций |
 | Очередь | Celery, Redis, Beat | Обход пабликов и дедуп |
 | Соцсети | VK Callback + user token, Bot API, Pyrogram | Несколько официальных API |
 | Данные | SQLite: customers, leads, orders, prices | Доменная модель CRM без лишнего слоя |
-| UI | HTML/JS, Tailwind в админке скаутов, виджет чата | Достаточно, чтобы показать поток заказа |
+| UI | HTML/JS, Tailwind в админке скаутов, виджет чата | Поток заказа без отдельного SPA |
 
-Python 3.11. Прод — один Debian: systemd, nginx, Redis. Docker и Kubernetes на этой машине не ставил: они съели бы RAM и не дали бы оркестрации, которой здесь нет.
+Python 3.11. Прод — один Debian: systemd, nginx, Redis. Docker и Kubernetes на этой машине не используются: оркестрировать нечего, RAM ушла бы вхолостую.
 
 ---
 
@@ -136,13 +136,13 @@ ServiceFl1ght/
 
 ## Локальный запуск
 
-Нужны Python 3.11+, Redis и ключ [Yandex Cloud Foundation Models](https://yandex.cloud/foundation-models). Секреты лежат в `.env` (файл в git не входит).
+Нужны Python 3.11+, Redis и ключ [Yandex Cloud Foundation Models](https://yandex.cloud/foundation-models). Секреты — в `.env` (файл в git не входит).
 
 ```bash
 python -m venv venv
 source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env              # свои ключи и пароль CRM
+cp .env.example .env              # ключи и пароль CRM
 python core/database.py
 python import_excel.py
 python -m unittest tests.test_db_manager tests.test_matcher tests.test_webhook_auth
@@ -163,13 +163,13 @@ python test_full_logic.py             # воронка без мессендже
 | `POST /api/tg-webhook` | Telegram Bot, заголовок `X-Telegram-Bot-Api-Secret-Token` |
 | `POST /api/avito-webhook` | Заглушка, всегда **501** |
 
-HTML админки скаутов я встроил в `/crm`. Карточки заказов — отдельный `frontend/crm.html`, в проде это `crm.fl1ght.ru`.
+HTML админки скаутов встроен в `/crm`. Карточки заказов — `frontend/crm.html`, в проде `crm.fl1ght.ru`.
 
 ---
 
 ## Переменные окружения
 
-Шаблон — `.env.example`. В репозиторий `.env` не коммитится.
+Шаблон — `.env.example`. `.env` в репозиторий не входит.
 
 | Переменная | Зачем |
 |---|---|
@@ -188,24 +188,24 @@ HTML админки скаутов я встроил в `/crm`. Карточки
 
 ---
 
-## Решения, которые я фиксировал сознательно
+## Технические решения
 
 - **JSON, не свободный текст.** Статус сделки — контракт для CRM.
 - **Цена из БД.** Матчер отдаёт в промпт до 6 строк прайса, модель не выдумывает сумму.
 - **Shared secret на вебхуках.** Сайтовый чат секрета не требует.
 - **Avito — заглушка.** Хост `api.api.avito.ru` оставлен специально, чтобы не выглядело как боевой API.
-- **Дедуп в Redis** (TTL 48 часов) и окно свежести VK 5 дней — не комментирую мёртвые треды.
+- **Дедуп в Redis** (TTL 48 часов) и окно свежести VK 5 дней — без комментариев под старыми тредами.
 - **Очередь, не цикл в API.** Обход пабликов не держит uvicorn.
 - **Один процесс Celery (worker + beat)** на маленьком VPS: отдельный beat только отъедал бы память.
-- **История диалога в RAM процесса.** Честный предел: один uvicorn-worker. Два воркера разъедут сессии.
+- **История диалога в RAM процесса.** Один uvicorn-worker. Два воркера разъедут сессии.
 
 Скауты ходят в публичные площадки. Целевой канал продаж — официальный бот и ЛС сообщества, не массовый холодный аутрич.
 
 ---
 
-## Что ещё не сделал (бэклог)
+## Бэклог
 
-Рабочий каркас, не production-hardening. На собеседовании сам называю:
+Рабочий каркас, не production-hardening:
 
 - PostgreSQL и история диалога в БД
 - живой Avito Messenger

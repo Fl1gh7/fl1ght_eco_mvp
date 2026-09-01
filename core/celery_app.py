@@ -37,7 +37,7 @@ celery_app.conf.beat_schedule = {
         "task": "services.scouts.scout_vk.run_vk_scout",
         "schedule": 120 * 60.0,
     },
-    # Раз в неделю пересобираю список пабликов (вс 03:00 Europe/Moscow).
+    # Раз в неделю пересобирается список пабликов (вс 03:00 Europe/Moscow).
     "run-group-finder-weekly": {
         "task": "services.scouts.group_finder.run_finder",
         "schedule": crontab(hour=3, minute=0, day_of_week="sun"),

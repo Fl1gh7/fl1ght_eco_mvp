@@ -8,7 +8,7 @@ __pycache__/
 .idea/
 .vscode/
 
-# SQLite и локальные данные — в git не кладу
+# SQLite и локальные данные — в git не входят
 *.db
 database.db
 
@@ -16,5 +16,5 @@ database.db
 *.session
 *.session-journal
 
-# Прайс iphone.xlsx в репозитории оставляю: без него не поднять таблицу prices
+# Прайс iphone.xlsx в репозитории: без него не поднять таблицу prices
 # iphone.xlsx

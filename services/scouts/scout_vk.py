@@ -23,7 +23,7 @@ GROUPS_FILE = os.path.join(PROJECT_ROOT, "services/scouts/monitored_groups.json"
 # ==========================================
 # Окно актуальности
 # ==========================================
-MAX_POST_AGE_DAYS = 5  # старше окна не комментирую — мёртвые треды
+MAX_POST_AGE_DAYS = 5  # записи старше окна пропускаются
 MAX_POST_AGE_SECONDS = MAX_POST_AGE_DAYS * 24 * 60 * 60
 
 async def scan_group_comments(session: aiohttp.ClientSession, group_domain: str, keywords: list):
@@ -45,7 +45,7 @@ async def scan_group_comments(session: aiohttp.ClientSession, group_domain: str,
 
             posts = wall_data.get("response", {}).get("items", [])
 
-            # барахолка и реклама — в Сито не отправляю
+            # барахолка и реклама — в Сито не уходят
             stop_words = [
                 "продам", "продаю", "продажа", "обмен", "меняю",
                 "магазин", "гарантия", "рассрочка", "в наличии",

@@ -12,7 +12,7 @@ import json
 import random
 from dotenv import load_dotenv
 
-# Пакеты `core` и `services` импортирую от корня репозитория.
+# Пакеты `core` и `services` импортируются от корня репозитория.
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, PROJECT_ROOT)
 load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
@@ -34,7 +34,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Контекст диалога держу в RAM процесса: рестарт и второй uvicorn его не разделят.
+# Контекст диалога в RAM процесса: рестарт и второй uvicorn его не разделят.
 sessions_history = {}
 
 # ==========================================
@@ -163,7 +163,7 @@ def get_crm_groups(username: str = Depends(authenticate_admin)):
 # ==========================================
 @app.post("/api/crm/run-tg-finder")
 async def run_tg_finder_endpoint(background_tasks: BackgroundTasks, username: str = Depends(authenticate_admin)):
-    """Поиск чатов ЖК. На время прогона глушу scout_tg: одна сессия Pyrogram на диск."""
+    """Поиск чатов ЖК. На время прогона останавливается scout_tg: одна сессия Pyrogram на диск."""
     python_exe = os.path.join(PROJECT_ROOT, "venv", "bin", "python")
     script_path = os.path.join(PROJECT_ROOT, "services", "scouts", "tg_group_finder.py")
 
@@ -289,7 +289,7 @@ async def vk_webhook(request: Request, background_tasks: BackgroundTasks):
     event_type = data.get("type")
 
     # confirmation без секрета — чтобы один раз подтвердить Callback в кабинете VK.
-    # message_new без VK_CALLBACK_SECRET не принимаю.
+    # message_new без VK_CALLBACK_SECRET отклоняется.
     if event_type != "confirmation":
         verify_shared_secret(
             data.get("secret"),
@@ -324,7 +324,7 @@ async def vk_webhook(request: Request, background_tasks: BackgroundTasks):
 # ==========================================
 @app.post("/api/avito-webhook")
 async def avito_webhook():
-    """Avito в воронку не подключал. Хост api.api.avito.ru в клиенте — намеренная заглушка."""
+    """Avito в воронку не входит. Хост api.api.avito.ru в клиенте — намеренная заглушка."""
     return JSONResponse(
         status_code=501,
         content={

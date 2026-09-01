@@ -1,8 +1,8 @@
-# Как я выкладываю ServiceFl1ght
+# Прод ServiceFl1ght
 
 Один Debian VPS: SQLite, Redis, один uvicorn, один Celery (worker + beat), юзербот Telegram. Без Docker, Kubernetes и Postgres — на гигабайте RAM они только отъедают память, а оркестрировать здесь нечего. Второй гигабайт в панели спокойнее, но стек живёт и на одном, если включён swap.
 
-Код — в git, прод — `/opt/servicefl1ght`, пользователь `flight`. `.env`, `database.db` и `*.session` в репозиторий не кладу.
+Код — в git, прод — `/opt/servicefl1ght`, пользователь `flight`. `.env`, `database.db` и `*.session` в репозиторий не входят.
 
 ---
 
@@ -16,7 +16,7 @@
 | Celery | `servicefl1ght-worker` | обход VK + недельный finder. Beat в том же процессе | ~150 MB |
 | Юзербот | `scout_tg` | слушатель групп. Имя юнита такое, потому что его стопает кнопка в админке | ~150 MB |
 
-Swap 2 GB — запас на пик, когда API, Celery и скаут на секунду не влезают в RAM. Это файл на диске (`/swapfile`), не отдельная услуга хостера. Живая память лучше, swap всё равно оставляю.
+Swap 2 GB — запас на пик, когда API, Celery и скаут на секунду не влезают в RAM. Это файл на диске (`/swapfile`), не отдельная услуга хостера. Живая память лучше, swap всё равно нужен.
 
 История чата в RAM: один `--workers 1`. Два uvicorn разъедут сессии.
 
@@ -24,13 +24,13 @@ Swap 2 GB — запас на пик, когда API, Celery и скаут на 
 
 ## Домены
 
-| Хост | Что отдаю |
+| Хост | Что отдаётся |
 |---|---|
 | `fl1ght.ru`, `www`, `service.fl1ght.ru` | лендинг и чат |
 | `admin.fl1ght.ru` | админка скаутов (`/crm`) |
 | `crm.fl1ght.ru` | карточки заказов |
 
-`autoconfig` / `autodiscover` на этот nginx не вешаю — почта. Вебхуки: `https://admin.fl1ght.ru/api/vk-webhook` и `https://admin.fl1ght.ru/api/tg-webhook`.
+`autoconfig` / `autodiscover` на этот nginx не вешаются — почта. Вебхуки: `https://admin.fl1ght.ru/api/vk-webhook` и `https://admin.fl1ght.ru/api/tg-webhook`.
 
 Шаблон виртуальных хостов — `deploy/nginx/servicefl1ght.conf`. После certbot живой файл на сервере уже с 443; шаблон из git поверх него копировать нельзя — сотрутся сертификаты.
 
@@ -116,9 +116,9 @@ sudo -u flight ./venv/bin/pip install -r requirements.txt
 systemctl restart servicefl1ght-api servicefl1ght-worker
 ```
 
-Базу и `.env` `git pull` не затирает. `scout_tg` рестартую, только если менял скаут; файл сессии должен остаться на диске.
+Базу и `.env` `git pull` не затирает. `scout_tg` стоит рестартовать, только если менялся скаут; файл сессии должен остаться на диске.
 
-На этом железе не жму «Ищейку TG/VK» без нужды и не открываю пачку вкладок теста воронки — каждый вызов YandexGPT.
+На этом железе кнопки «Ищейка TG/VK» без нужды лучше не жать и не открывать пачку вкладок теста воронки — каждый вызов YandexGPT.
 
 Проверка воронки: [TESTING.md](../TESTING.md). Ручной пинок скаута VK: `sudo -u flight /opt/servicefl1ght/venv/bin/python /opt/servicefl1ght/run_scout_now.py`.
 
