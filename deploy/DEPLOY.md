@@ -138,11 +138,18 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8000/crm
 
 ## 5. nginx и HTTPS
 
-Подставьте домен (A-запись на `217.26.27.121`):
+Домены Beget (A-запись на текущий IP сервера):
+
+| Хост | Что отдаёт |
+|---|---|
+| `fl1ght.ru`, `www`, `service.fl1ght.ru` | лендинг и чат |
+| `admin.fl1ght.ru` | админка скаутов (`/crm`) |
+| `crm.fl1ght.ru` | карточки заказов |
+
+`autoconfig` / `autodiscover` не вешаем на этот nginx — это почта.
 
 ```bash
 cp /opt/servicefl1ght/deploy/nginx/servicefl1ght.conf /etc/nginx/sites-available/servicefl1ght
-nano /etc/nginx/sites-available/servicefl1ght   # server_name
 ln -sf /etc/nginx/sites-available/servicefl1ght /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
@@ -151,10 +158,18 @@ ufw allow OpenSSH
 ufw allow 'Nginx Full'
 ufw --force enable
 
-certbot --nginx -d ваш-домен.ru -d admin.ваш-домен.ru
+certbot --nginx --non-interactive --agree-tos --register-unsafely-without-email \
+  -d fl1ght.ru -d www.fl1ght.ru \
+  -d service.fl1ght.ru -d www.service.fl1ght.ru \
+  -d admin.fl1ght.ru \
+  -d crm.fl1ght.ru -d www.crm.fl1ght.ru
 ```
 
-Вебхуки VK и Telegram должны смотреть на `https://домен/api/vk-webhook` и `https://домен/api/tg-webhook`. После смены секретов заново выставьте `setWebhook`.
+`www.admin.fl1ght.ru` в сертификат не включайте, пока его A-запись не смотрит на этот же VPS.
+
+После первого `certbot` живой файл `/etc/nginx/sites-available/servicefl1ght` уже с HTTPS. Шаблон из git поверх него не копируйте — сотрёте сертификаты.
+
+Вебхуки VK и Telegram: `https://admin.fl1ght.ru/api/vk-webhook` и `https://admin.fl1ght.ru/api/tg-webhook`. После смены секретов заново выставьте `setWebhook`.
 
 ## 6. Как обновлять код
 
